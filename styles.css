@@ -1,0 +1,516 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    color: white;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #0078c8;
+    padding-bottom: 20px;
+}
+
+h1 {
+    font-size: 28px;
+    margin-bottom: 5px;
+    color: #0078c8;
+}
+
+.app-info {
+    color: #ccc;
+    font-size: 14px;
+}
+
+.stations-container {
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.stations-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .stations-row {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.station-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.station-section {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    min-height: 300px;
+    position: relative;
+}
+
+.station-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.station-icons {
+    display: flex;
+    gap: 8px;
+    margin-right: 15px;
+}
+
+.train-icon {
+    display: inline-block;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    line-height: 35px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+}
+
+/* Train line colors */
+.train-icon.q {
+    background: #ffd320;
+    color: black;
+}
+
+.train-icon.r {
+    background: #fccc0a;
+    color: black;
+}
+
+.train-icon.w {
+    background: #fccc0a;
+    color: black;
+}
+
+.train-icon.\\34  {  /* CSS escape for number 4 */
+    background: #00933c;
+    color: white;
+}
+
+.train-icon.\\35  {  /* CSS escape for number 5 */
+    background: #00933c;
+    color: white;
+}
+
+/* Train icons for 4 and 5 */
+.train-icon.route-4 {
+    background: #00933c !important;
+    color: white !important;
+}
+
+.train-icon.route-5 {
+    background: #00933c !important;
+    color: white !important;
+}
+
+.station-info h2 {
+    font-size: 20px;
+    margin-bottom: 3px;
+    color: white;
+}
+
+.station-info p {
+    color: #ccc;
+    font-size: 13px;
+    margin: 0;
+}
+
+.status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 10px;
+    background: rgba(0, 120, 200, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid #0078c8;
+}
+
+#status {
+    font-weight: bold;
+}
+
+#last-updated {
+    font-size: 12px;
+    color: #ccc;
+}
+
+.arrivals-list {
+    margin-bottom: 30px;
+}
+
+.arrival-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 15px;
+    align-items: center;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 3px solid #0078c8;
+    transition: all 0.3s ease;
+}
+
+.arrival-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(3px);
+}
+
+.arrival-route {
+    display: flex;
+    align-items: center;
+}
+
+.route-badge {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    line-height: 28px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+}
+
+.route-badge.q {
+    background: #ffd320;
+    color: black;
+}
+
+.route-badge.r {
+    background: #fccc0a;
+    color: black;
+}
+
+.route-badge.w {
+    background: #fccc0a;
+    color: black;
+}
+
+.route-badge.\\34  {  /* CSS escape for number 4 */
+    background: #00933c;
+    color: white;
+}
+
+.route-badge.\\35  {  /* CSS escape for number 5 */
+    background: #00933c;
+    color: white;
+}
+
+/* Route badges for 4 and 5 */
+.route-badge.route-4 {
+    background: #00933c !important;
+    color: white !important;
+}
+
+.route-badge.route-5 {
+    background: #00933c !important;
+    color: white !important;
+}
+
+.arrival-time {
+    font-size: 16px;
+    font-weight: bold;
+    color: #e0e0e0;
+    text-align: center;
+}
+
+.arrival-minutes {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.arrival-minutes.soon {
+    color: #ff6b6b;
+    animation: pulse 2s infinite;
+}
+
+.arrival-minutes.coming {
+    color: #ffd320;
+}
+
+.arrival-minutes.later {
+    color: #4ecdc4;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.no-trains {
+    text-align: center;
+    padding: 30px;
+    color: #ccc;
+    font-style: italic;
+}
+
+.refresh-section {
+    text-align: center;
+}
+
+.refresh-btn {
+    background: #0078c8;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+}
+
+.refresh-btn:hover {
+    background: #005a9b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 120, 200, 0.3);
+}
+
+.refresh-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.auto-refresh {
+    font-size: 14px;
+    color: #ccc;
+}
+
+.auto-refresh input[type="checkbox"] {
+    margin-right: 8px;
+    accent-color: #0078c8;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #0078c8;
+}
+
+.error {
+    background: rgba(255, 107, 107, 0.2);
+    border-left-color: #ff6b6b;
+    color: #ff6b6b;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+/* Clickable times styling */
+.clickable-time {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.clickable-time:hover {
+    background: rgba(255, 211, 32, 0.1);
+    border-left-color: #ffd320;
+    transform: translateX(5px);
+}
+
+/* Union Square arrival display */
+.union-square-arrival {
+    display: none;
+    margin-top: 15px;
+    padding: 12px;
+    background: rgba(255, 211, 32, 0.1);
+    border: 1px solid rgba(255, 211, 32, 0.3);
+    border-radius: 8px;
+}
+
+.arrival-calculation {
+    color: white;
+}
+
+.calculation-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.destination {
+    font-weight: bold;
+    color: #ffd320;
+}
+
+.calculation-details {
+    font-size: 14px;
+}
+
+.arrival-info {
+    margin-bottom: 4px;
+}
+
+.arrival-info strong {
+    color: #ffd320;
+}
+
+.travel-info {
+    color: #ccc;
+    font-size: 12px;
+}
+
+/* Connection highlighting */
+.connection-highlight {
+    background: rgba(76, 175, 80, 0.2) !important;
+    border-left: 4px solid #4caf50 !important;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+    transform: translateX(5px);
+}
+
+.connection-highlight .arrival-time {
+    color: #81c784 !important;
+}
+
+.connection-highlight .arrival-minutes {
+    color: #4caf50 !important;
+}
+
+/* Selected departure highlighting */
+.selected-departure {
+    background: rgba(76, 175, 80, 0.3) !important;
+    border-left: 4px solid #4caf50 !important;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
+    transform: translateX(8px);
+}
+
+.selected-departure .arrival-time {
+    color: #81c784 !important;
+    font-weight: bold;
+}
+
+.selected-departure .arrival-minutes {
+    color: #4caf50 !important;
+    font-weight: bold;
+}
+
+.selected-departure .route-badge {
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+}
+
+/* Platform note styling */
+.platform-note {
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(33, 150, 243, 0.1);
+    border: 1px solid rgba(33, 150, 243, 0.3);
+    border-radius: 8px;
+}
+
+.platform-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-size: 13px;
+}
+
+.platform-icon {
+    font-size: 16px;
+}
+
+.platform-text strong {
+    color: #2196f3;
+}
+
+/* Whitehall arrival info styling */
+.whitehall-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-size: 13px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.whitehall-icon {
+    font-size: 14px;
+}
+
+.whitehall-text strong {
+    color: #ff9800;
+}
+
+/* Bowling Green arrival info styling */
+.bowling-green-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-size: 13px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.bowling-green-icon {
+    font-size: 14px;
+}
+
+.bowling-green-text strong {
+    color: #4caf50;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        padding: 20px;
+        max-width: 100%;
+    }
+    
+    h1 {
+        font-size: 24px;
+    }
+    
+    .arrival-minutes {
+        font-size: 20px;
+    }
+    
+    .station-section {
+        min-height: auto;
+    }
+}

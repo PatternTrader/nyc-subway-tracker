@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYC Subway Tracker - Q/R/W Trains</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>NYC Subway Tracker</h1>
+            <p class="app-info">Real-time arrivals • Downtown</p>
+        </header>
+
+        <div class="status-bar">
+            <span id="status">Loading...</span>
+            <span id="last-updated"></span>
+        </div>
+
+        <div id="stations-container" class="stations-container">
+            <!-- Stations will be populated here -->
+        </div>
+
+        <div class="refresh-section">
+            <button id="refresh-btn" class="refresh-btn">Refresh</button>
+            <div class="auto-refresh">
+                <label>
+                    <input type="checkbox" id="auto-refresh" checked>
+                    Auto-refresh every minute
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
