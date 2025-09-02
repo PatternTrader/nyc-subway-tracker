@@ -270,7 +270,8 @@ class SubwayTracker {
                 const unionSquareArrivalTime = new Date(unionSquareArrivalTimestamp * 1000).toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit', 
-                    hour12: false 
+                    hour12: false,
+                    timeZone: 'America/New_York'
                 });
                 const totalMinutesFromNow = departureMinutes + travelTimeMinutes;
                 
@@ -302,7 +303,8 @@ class SubwayTracker {
                 const whitehallArrivalTime = new Date(whitehallArrivalTimestamp * 1000).toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit', 
-                    hour12: false 
+                    hour12: false,
+                    timeZone: 'America/New_York'
                 });
                 const totalMinutesFromNow = departureMinutes + travelTimeMinutes;
                 
@@ -365,7 +367,8 @@ class SubwayTracker {
                 const bowlingGreenArrivalTime = new Date(bowlingGreenArrivalTimestamp * 1000).toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit', 
-                    hour12: false 
+                    hour12: false,
+                    timeZone: 'America/New_York'
                 });
                 const totalMinutesFromNow = departureMinutes + travelTimeMinutes;
                 
@@ -490,7 +493,8 @@ class SubwayTracker {
                 const unionSquareArrivalTime = new Date(unionSquareArrivalTimestamp * 1000).toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit', 
-                    hour12: false 
+                    hour12: false,
+                    timeZone: 'America/New_York'
                 });
                 const totalMinutesFromNow = departureMinutes + travelTimeMinutes;
                 
@@ -522,7 +526,8 @@ class SubwayTracker {
                 const unionSquareArrivalTime = new Date(unionSquareArrivalTimestamp * 1000).toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit', 
-                    hour12: false 
+                    hour12: false,
+                    timeZone: 'America/New_York'
                 });
                 const totalMinutesFromNow = departureMinutes + travelTimeMinutes;
                 
@@ -554,7 +559,8 @@ class SubwayTracker {
                 const eighthSixthArrivalTime = new Date(eighthSixthArrivalTimestamp * 1000).toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit', 
-                    hour12: false 
+                    hour12: false,
+                    timeZone: 'America/New_York'
                 });
                 const totalMinutesFromNow = departureMinutes + travelTimeMinutes;
                 
@@ -741,7 +747,8 @@ class SubwayTracker {
                 const bowlingGreenArrivalTime = new Date(bowlingGreenArrivalTimestamp * 1000).toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit', 
-                    hour12: false 
+                    hour12: false,
+                    timeZone: 'America/New_York'
                 });
                 const totalMinutesFromNow = departureMinutes + travelTimeMinutes;
                 

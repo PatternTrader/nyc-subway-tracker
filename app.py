@@ -3,6 +3,7 @@ from flask_cors import CORS
 import requests
 import datetime
 import os
+import pytz
 from google.transit import gtfs_realtime_pb2
 
 app = Flask(__name__)
@@ -160,7 +161,9 @@ def get_arrivals_for_station(feed, station_config):
                 
                 # Only show trains arriving in the future
                 if minutes_away >= 0:
-                    dt = datetime.datetime.fromtimestamp(arrival_ts).strftime("%H:%M")
+                    # Convert timestamp to Eastern Time
+                    eastern = pytz.timezone('America/New_York')
+                    dt = datetime.datetime.fromtimestamp(arrival_ts, tz=eastern).strftime("%H:%M")
                     arrivals.append({
                         'minutes': minutes_away,
                         'time': dt,
@@ -221,7 +224,7 @@ def api_arrivals():
         return jsonify({
             'status': 'success',
             'message': f'Found {total_trains} upcoming trains across {len(all_arrivals)} stations',
-            'last_updated': datetime.datetime.now().strftime("%H:%M:%S"),
+            'last_updated': datetime.datetime.now(pytz.timezone('America/New_York')).strftime("%H:%M:%S"),
             'stations': all_arrivals
         })
     
