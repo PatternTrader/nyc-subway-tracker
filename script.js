@@ -141,7 +141,7 @@ class SubwayTracker {
                 
                 // Special filtering for downtown R/W and 4/5 Union Square on page load
                 let displayArrivals;
-                if (stationKey === 'union_square_rw' || stationKey === 'union_square_45' || stationKey === 'bowling_green_45_downtown') {
+                if (stationKey === 'union_square_rw' || stationKey === 'union_square_45' || stationKey === 'bowling_green_45_downtown' || stationKey === 'bowling_green_45') {
                     // Filter out trains arriving in 10 minutes or less, then take up to 5
                     const filteredArrivals = arrivals.filter(arrival => arrival.minutes > 10);
                     displayArrivals = filteredArrivals.slice(0, 5);
@@ -219,6 +219,14 @@ class SubwayTracker {
         
         // Show default Bowling Green arrival info for downtown 4/5 Union Square
         this.showDefaultBowlingGreenArrival();
+        
+        // Show arrival times for uptown boxes
+        this.showUptownWhitehallUnionSquareArrival();
+        this.showUptownBowlingGreenUnionSquareArrival();
+        this.showUptownUnionSquare86thArrival();
+        
+        // Ensure all stations show exactly 5 trains or placeholders
+        this.restoreFirst5Trains('[data-station="bowling_green_45"]');
         
         // Filter Union Square boxes to show only viable times on page load
         this.filterUnionSquareOnPageLoad();
@@ -336,8 +344,15 @@ class SubwayTracker {
     }
     
     showDefaultBowlingGreenArrival() {
-        // Show arrival info for the first (earliest) 4/5 train at downtown Union Square
-        const first45Train = document.querySelector('[data-station="union_square_45"] .arrival-item');
+        // Show arrival info for the first visible (earliest) 4/5 train at downtown Union Square
+        const train45s = document.querySelectorAll('[data-station="union_square_45"] .arrival-item');
+        let first45Train = null;
+        for (let train of train45s) {
+            if (train.style.display !== 'none') {
+                first45Train = train;
+                break;
+            }
+        }
         if (first45Train) {
             const departureTime = parseInt(first45Train.dataset.timestamp);
             const departureMinutes = parseInt(first45Train.dataset.timestamp) 
@@ -426,6 +441,7 @@ class SubwayTracker {
             const departureTime = parseInt(earliestRWTrain.dataset.timestamp);
             const travelTime = 9 * 60; // 9 minutes in seconds
             const whitehallArrivalTime = departureTime + travelTime;
+            // Filter Whitehall to show only trains that depart at or after the arrival time
             this.filterAndShowNext5Trains('[data-station="whitehall_rw_downtown"]', whitehallArrivalTime);
         }
         
@@ -443,7 +459,203 @@ class SubwayTracker {
             const departureTime = parseInt(earliest45Train.dataset.timestamp);
             const travelTime = 9 * 60; // 9 minutes in seconds
             const bowlingGreenArrivalTime = departureTime + travelTime;
+            // Filter Bowling Green to show only trains that depart at or after the arrival time
             this.filterAndShowNext5Trains('[data-station="bowling_green_45_downtown"]', bowlingGreenArrivalTime);
+        }
+        
+        // Update arrival time display to reflect the earliest visible train
+        this.showDefaultBowlingGreenArrival();
+    }
+    
+    showUptownWhitehallUnionSquareArrival() {
+        // Show arrival info for the first visible R/W train at uptown Whitehall
+        const uptownWhitehallTrains = document.querySelectorAll('[data-station="whitehall_rw"] .arrival-item');
+        let firstVisibleTrain = null;
+        
+        // Find the first visible train (not hidden by filtering)
+        for (let train of uptownWhitehallTrains) {
+            if (train.style.display !== 'none') {
+                firstVisibleTrain = train;
+                break;
+            }
+        }
+        
+        if (firstVisibleTrain) {
+            const departureTime = parseInt(firstVisibleTrain.dataset.timestamp);
+            const departureMinutes = Math.round((departureTime - Date.now() / 1000) / 60);
+            
+            if (departureTime && departureMinutes >= 0) {
+                const travelTimeMinutes = 9;
+                const unionSquareArrivalTimestamp = departureTime + (travelTimeMinutes * 60);
+                const unionSquareArrivalTime = new Date(unionSquareArrivalTimestamp * 1000).toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: false 
+                });
+                const totalMinutesFromNow = departureMinutes + travelTimeMinutes;
+                
+                this.displayUptownWhitehallUnionSquareArrival(unionSquareArrivalTime, totalMinutesFromNow, travelTimeMinutes);
+            }
+        }
+    }
+    
+    showUptownBowlingGreenUnionSquareArrival() {
+        // Show arrival info for the first visible 4/5 train at uptown Bowling Green
+        const uptownBowlingGreenTrains = document.querySelectorAll('[data-station="bowling_green_45"] .arrival-item');
+        let firstVisibleTrain = null;
+        
+        // Find the first visible train (not hidden by filtering)
+        for (let train of uptownBowlingGreenTrains) {
+            if (train.style.display !== 'none') {
+                firstVisibleTrain = train;
+                break;
+            }
+        }
+        
+        if (firstVisibleTrain) {
+            const departureTime = parseInt(firstVisibleTrain.dataset.timestamp);
+            const departureMinutes = Math.round((departureTime - Date.now() / 1000) / 60);
+            
+            if (departureTime && departureMinutes >= 0) {
+                const travelTimeMinutes = 9;
+                const unionSquareArrivalTimestamp = departureTime + (travelTimeMinutes * 60);
+                const unionSquareArrivalTime = new Date(unionSquareArrivalTimestamp * 1000).toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: false 
+                });
+                const totalMinutesFromNow = departureMinutes + travelTimeMinutes;
+                
+                this.displayUptownBowlingGreenUnionSquareArrival(unionSquareArrivalTime, totalMinutesFromNow, travelTimeMinutes);
+            }
+        }
+    }
+    
+    showUptownUnionSquare86thArrival() {
+        // Show arrival info for the first visible Q train at uptown Union Square
+        const uptownUnionSquareTrains = document.querySelectorAll('[data-station="union_square_q"] .arrival-item');
+        let firstVisibleTrain = null;
+        
+        // Find the first visible train (not hidden by filtering)
+        for (let train of uptownUnionSquareTrains) {
+            if (train.style.display !== 'none') {
+                firstVisibleTrain = train;
+                break;
+            }
+        }
+        
+        if (firstVisibleTrain) {
+            const departureTime = parseInt(firstVisibleTrain.dataset.timestamp);
+            const departureMinutes = Math.round((departureTime - Date.now() / 1000) / 60);
+            
+            if (departureTime && departureMinutes >= 0) {
+                const travelTimeMinutes = 14;
+                const eighthSixthArrivalTimestamp = departureTime + (travelTimeMinutes * 60);
+                const eighthSixthArrivalTime = new Date(eighthSixthArrivalTimestamp * 1000).toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: false 
+                });
+                const totalMinutesFromNow = departureMinutes + travelTimeMinutes;
+                
+                this.displayUptownUnionSquare86thArrival(eighthSixthArrivalTime, totalMinutesFromNow, travelTimeMinutes);
+            }
+        }
+    }
+    
+    displayUptownWhitehallUnionSquareArrival(arrivalTime, totalMinutes, travelTime) {
+        const whitehallStationSection = document.querySelector('[data-station="whitehall_rw"]');
+        if (whitehallStationSection) {
+            // Check if union square arrival display already exists
+            let arrivalDisplay = whitehallStationSection.querySelector('.union-square-arrival-uptown');
+            if (!arrivalDisplay) {
+                arrivalDisplay = document.createElement('div');
+                arrivalDisplay.className = 'union-square-arrival-uptown union-square-arrival';
+                arrivalDisplay.id = 'union-square-arrival-uptown-whitehall';
+                whitehallStationSection.querySelector('.arrivals-list').after(arrivalDisplay);
+            }
+
+            arrivalDisplay.innerHTML = `
+                <div class="arrival-calculation">
+                    <div class="calculation-header">
+                        <span class="route-badge r">R/W</span>
+                        <span class="destination">→ Union Square</span>
+                    </div>
+                    <div class="calculation-details">
+                        <div class="arrival-info">
+                            <strong>Arrive at Union Square: ${arrivalTime}</strong>
+                        </div>
+                        <div class="travel-info">
+                            <small>In ${totalMinutes} min (${travelTime} min travel time)</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+            arrivalDisplay.style.display = 'block';
+        }
+    }
+    
+    displayUptownBowlingGreenUnionSquareArrival(arrivalTime, totalMinutes, travelTime) {
+        const bowlingGreenStationSection = document.querySelector('[data-station="bowling_green_45"]');
+        if (bowlingGreenStationSection) {
+            // Check if union square arrival display already exists
+            let arrivalDisplay = bowlingGreenStationSection.querySelector('.union-square-arrival-uptown');
+            if (!arrivalDisplay) {
+                arrivalDisplay = document.createElement('div');
+                arrivalDisplay.className = 'union-square-arrival-uptown union-square-arrival';
+                arrivalDisplay.id = 'union-square-arrival-uptown-bowling-green';
+                bowlingGreenStationSection.querySelector('.arrivals-list').after(arrivalDisplay);
+            }
+
+            arrivalDisplay.innerHTML = `
+                <div class="arrival-calculation">
+                    <div class="calculation-header">
+                        <span class="route-badge route-4">4/5</span>
+                        <span class="destination">→ Union Square</span>
+                    </div>
+                    <div class="calculation-details">
+                        <div class="arrival-info">
+                            <strong>Arrive at Union Square: ${arrivalTime}</strong>
+                        </div>
+                        <div class="travel-info">
+                            <small>In ${totalMinutes} min (${travelTime} min travel time)</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+            arrivalDisplay.style.display = 'block';
+        }
+    }
+    
+    displayUptownUnionSquare86thArrival(arrivalTime, totalMinutes, travelTime) {
+        const unionSquareStationSection = document.querySelector('[data-station="union_square_q"]');
+        if (unionSquareStationSection) {
+            // Check if 86th street arrival display already exists
+            let arrivalDisplay = unionSquareStationSection.querySelector('.eighty-sixth-arrival-uptown');
+            if (!arrivalDisplay) {
+                arrivalDisplay = document.createElement('div');
+                arrivalDisplay.className = 'eighty-sixth-arrival-uptown union-square-arrival';
+                arrivalDisplay.id = 'eighty-sixth-arrival-uptown-union-square';
+                unionSquareStationSection.querySelector('.arrivals-list').after(arrivalDisplay);
+            }
+
+            arrivalDisplay.innerHTML = `
+                <div class="arrival-calculation">
+                    <div class="calculation-header">
+                        <span class="route-badge q">Q</span>
+                        <span class="destination">→ 86th Street</span>
+                    </div>
+                    <div class="calculation-details">
+                        <div class="arrival-info">
+                            <strong>Arrive at 86th Street: ${arrivalTime}</strong>
+                        </div>
+                        <div class="travel-info">
+                            <small>In ${totalMinutes} min (${travelTime} min travel time)</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+            arrivalDisplay.style.display = 'block';
         }
     }
     
@@ -614,9 +826,30 @@ class SubwayTracker {
         });
         
         // Show only the first 5 trains
-        Array.from(arrivals).slice(0, 5).forEach(item => {
+        const visibleTrains = Array.from(arrivals).slice(0, 5);
+        visibleTrains.forEach(item => {
             item.style.display = 'grid';
         });
+        
+        // Add placeholders if we have fewer than 5 trains
+        if (visibleTrains.length < 5 && stationContainer) {
+            const arrivalsListContainer = stationContainer.querySelector('.arrivals-list');
+            const placeholdersNeeded = 5 - visibleTrains.length;
+            
+            // Add new placeholders
+            for (let i = 0; i < placeholdersNeeded; i++) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'arrival-item no-data-placeholder';
+                placeholder.innerHTML = `
+                    <div class="arrival-route">
+                        <span class="route-badge" style="background: #666; color: #ccc;">—</span>
+                    </div>
+                    <div class="arrival-time" style="color: #666;">No data</div>
+                    <div class="arrival-minutes" style="color: #666;">—</div>
+                `;
+                arrivalsListContainer.appendChild(placeholder);
+            }
+        }
     }
     
     clearSelectedHighlight() {
