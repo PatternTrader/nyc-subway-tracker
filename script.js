@@ -211,8 +211,184 @@ class SubwayTracker {
         // Apply downstream filtering on page load
         this.applyInitialDownstreamFiltering();
         
+        // Show default Union Square arrival info for 86th Street
+        this.showDefaultUnionSquareArrival();
+        
+        // Show default Whitehall arrival info for downtown R/W Union Square
+        this.showDefaultWhitehallArrival();
+        
+        // Show default Bowling Green arrival info for downtown 4/5 Union Square
+        this.showDefaultBowlingGreenArrival();
+        
+        // Filter Union Square boxes to show only viable times on page load
+        this.filterUnionSquareOnPageLoad();
+        
         // Add click event listeners to 86th Street Q train times
         this.addClickListeners();
+    }
+    
+    filterUnionSquareOnPageLoad() {
+        // Filter downtown Union Square boxes to show only viable times based on 86th Street Q arrival
+        const firstQTrain = document.querySelector('[data-station="q_86th"] .arrival-item');
+        if (firstQTrain) {
+            const departureTime = parseInt(firstQTrain.dataset.timestamp);
+            if (departureTime) {
+                const travelTimeMinutes = 14;
+                const unionSquareArrivalTimestamp = departureTime + (travelTimeMinutes * 60);
+                
+                // Filter both Union Square boxes with 0-minute transfer time (immediate connections)
+                this.filterAndShowNext5Trains('[data-station="union_square_rw"]', unionSquareArrivalTimestamp);
+                this.filterAndShowNext5Trains('[data-station="union_square_45"]', unionSquareArrivalTimestamp);
+                
+                // Update arrival displays to reflect the new filtered earliest trains
+                this.showDefaultWhitehallArrival();
+                this.showDefaultBowlingGreenArrival();
+            }
+        }
+    }
+    
+    showDefaultUnionSquareArrival() {
+        // Show arrival info for the first (earliest) Q train at 86th Street
+        const firstQTrain = document.querySelector('[data-station="q_86th"] .arrival-item');
+        if (firstQTrain) {
+            const departureTime = parseInt(firstQTrain.dataset.timestamp);
+            const departureMinutes = parseInt(firstQTrain.dataset.timestamp) 
+                ? Math.round((parseInt(firstQTrain.dataset.timestamp) - Date.now() / 1000) / 60) 
+                : 0;
+            
+            if (departureTime && departureMinutes >= 0) {
+                const travelTimeMinutes = 14;
+                const unionSquareArrivalTimestamp = departureTime + (travelTimeMinutes * 60);
+                const unionSquareArrivalTime = new Date(unionSquareArrivalTimestamp * 1000).toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: false 
+                });
+                const totalMinutesFromNow = departureMinutes + travelTimeMinutes;
+                
+                this.displayUnionSquareArrival(unionSquareArrivalTime, totalMinutesFromNow, travelTimeMinutes);
+            }
+        }
+    }
+    
+    showDefaultWhitehallArrival() {
+        // Show arrival info for the first visible (earliest) R/W train at downtown Union Square
+        const rwTrains = document.querySelectorAll('[data-station="union_square_rw"] .arrival-item');
+        let firstVisibleRWTrain = null;
+        
+        // Find the first visible train (not hidden by filtering)
+        for (let train of rwTrains) {
+            if (train.style.display !== 'none') {
+                firstVisibleRWTrain = train;
+                break;
+            }
+        }
+        
+        if (firstVisibleRWTrain) {
+            const departureTime = parseInt(firstVisibleRWTrain.dataset.timestamp);
+            const departureMinutes = Math.round((departureTime - Date.now() / 1000) / 60);
+            
+            if (departureTime && departureMinutes >= 0) {
+                const travelTimeMinutes = 9;
+                const whitehallArrivalTimestamp = departureTime + (travelTimeMinutes * 60);
+                const whitehallArrivalTime = new Date(whitehallArrivalTimestamp * 1000).toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: false 
+                });
+                const totalMinutesFromNow = departureMinutes + travelTimeMinutes;
+                
+                this.displayWhitehallArrival(whitehallArrivalTime, totalMinutesFromNow, travelTimeMinutes);
+            }
+        }
+    }
+    
+    displayWhitehallArrival(arrivalTime, totalMinutes, travelTime) {
+        const rwStationSection = document.querySelector('[data-station="union_square_rw"]');
+        if (rwStationSection) {
+            // Check if whitehall arrival display already exists
+            let arrivalDisplay = rwStationSection.querySelector('.whitehall-arrival');
+            if (!arrivalDisplay) {
+                arrivalDisplay = document.createElement('div');
+                arrivalDisplay.className = 'whitehall-arrival union-square-arrival';
+                arrivalDisplay.id = 'whitehall-arrival';
+                rwStationSection.querySelector('.arrivals-list').after(arrivalDisplay);
+            }
+            
+            arrivalDisplay.innerHTML = `
+                <div class="arrival-calculation">
+                    <div class="calculation-header">
+                        <span class="route-badge r" style="background: #fccc0a; color: black;">R/W</span>
+                        <span class="destination">→ Whitehall</span>
+                    </div>
+                    <div class="calculation-details">
+                        <div class="arrival-info">
+                            <strong>Arrive at Whitehall: ${arrivalTime}</strong>
+                        </div>
+                        <div class="travel-info">
+                            <small>In ${totalMinutes} min (${travelTime} min travel time)</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+            arrivalDisplay.style.display = 'block';
+        }
+    }
+    
+    showDefaultBowlingGreenArrival() {
+        // Show arrival info for the first (earliest) 4/5 train at downtown Union Square
+        const first45Train = document.querySelector('[data-station="union_square_45"] .arrival-item');
+        if (first45Train) {
+            const departureTime = parseInt(first45Train.dataset.timestamp);
+            const departureMinutes = parseInt(first45Train.dataset.timestamp) 
+                ? Math.round((parseInt(first45Train.dataset.timestamp) - Date.now() / 1000) / 60) 
+                : 0;
+            
+            if (departureTime && departureMinutes >= 0) {
+                const travelTimeMinutes = 9;
+                const bowlingGreenArrivalTimestamp = departureTime + (travelTimeMinutes * 60);
+                const bowlingGreenArrivalTime = new Date(bowlingGreenArrivalTimestamp * 1000).toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: false 
+                });
+                const totalMinutesFromNow = departureMinutes + travelTimeMinutes;
+                
+                this.displayBowlingGreenArrival(bowlingGreenArrivalTime, totalMinutesFromNow, travelTimeMinutes);
+            }
+        }
+    }
+    
+    displayBowlingGreenArrival(arrivalTime, totalMinutes, travelTime) {
+        const train45StationSection = document.querySelector('[data-station="union_square_45"]');
+        if (train45StationSection) {
+            // Check if bowling green arrival display already exists
+            let arrivalDisplay = train45StationSection.querySelector('.bowling-green-arrival');
+            if (!arrivalDisplay) {
+                arrivalDisplay = document.createElement('div');
+                arrivalDisplay.className = 'bowling-green-arrival union-square-arrival';
+                arrivalDisplay.id = 'bowling-green-arrival';
+                train45StationSection.querySelector('.arrivals-list').after(arrivalDisplay);
+            }
+            
+            arrivalDisplay.innerHTML = `
+                <div class="arrival-calculation">
+                    <div class="calculation-header">
+                        <span class="route-badge route-4" style="background: #00933c; color: white;">4/5</span>
+                        <span class="destination">→ Bowling Green</span>
+                    </div>
+                    <div class="calculation-details">
+                        <div class="arrival-info">
+                            <strong>Arrive at Bowling Green: ${arrivalTime}</strong>
+                        </div>
+                        <div class="travel-info">
+                            <small>In ${totalMinutes} min (${travelTime} min travel time)</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+            arrivalDisplay.style.display = 'block';
+        }
     }
     
     applyInitialDownstreamFiltering() {
@@ -228,6 +404,47 @@ class SubwayTracker {
         
         // Filter uptown 4/5 86th Street box based on uptown Bowling Green 4/5
         this.filterUptown45_86thConnections();
+        
+        // Update downstream boxes to show only viable times
+        this.updateDownstreamViability();
+    }
+    
+    updateDownstreamViability() {
+        // Update downstream boxes to show only viable times based on filtered Union Square trains
+        
+        // Find earliest visible R/W train at Union Square
+        const rwTrains = document.querySelectorAll('[data-station="union_square_rw"] .arrival-item');
+        let earliestRWTrain = null;
+        for (let train of rwTrains) {
+            if (train.style.display !== 'none') {
+                earliestRWTrain = train;
+                break;
+            }
+        }
+        
+        if (earliestRWTrain) {
+            const departureTime = parseInt(earliestRWTrain.dataset.timestamp);
+            const travelTime = 9 * 60; // 9 minutes in seconds
+            const whitehallArrivalTime = departureTime + travelTime;
+            this.filterAndShowNext5Trains('[data-station="whitehall_rw_downtown"]', whitehallArrivalTime);
+        }
+        
+        // Find earliest visible 4/5 train at Union Square
+        const train45s = document.querySelectorAll('[data-station="union_square_45"] .arrival-item');
+        let earliest45Train = null;
+        for (let train of train45s) {
+            if (train.style.display !== 'none') {
+                earliest45Train = train;
+                break;
+            }
+        }
+        
+        if (earliest45Train) {
+            const departureTime = parseInt(earliest45Train.dataset.timestamp);
+            const travelTime = 9 * 60; // 9 minutes in seconds
+            const bowlingGreenArrivalTime = departureTime + travelTime;
+            this.filterAndShowNext5Trains('[data-station="bowling_green_45_downtown"]', bowlingGreenArrivalTime);
+        }
     }
     
     addClickListeners() {
@@ -242,6 +459,26 @@ class SubwayTracker {
     }
     
     calculateUnionSquareArrival(departureTimestamp, departureMinutes, selectedElement) {
+        // Check if clicking on already selected train (toggle off)
+        if (selectedElement.classList.contains('selected-departure')) {
+            // Deselect the train and clear all highlights
+            this.clearConnectionHighlights();
+            this.clearSelectedHighlight();
+            
+            // Restore default arrival displays
+            this.showDefaultUnionSquareArrival();
+            this.showDefaultWhitehallArrival();
+            this.showDefaultBowlingGreenArrival();
+            
+            // Hide platform notes
+            const rwPlatformNote = document.getElementById('rw-platform-note');
+            const platformNote45 = document.getElementById('45-platform-note');
+            if (rwPlatformNote) rwPlatformNote.style.display = 'none';
+            if (platformNote45) platformNote45.style.display = 'none';
+            
+            return; // Exit early - no further processing
+        }
+        
         // Clear any existing highlights
         this.clearConnectionHighlights();
         this.clearSelectedHighlight();
@@ -249,9 +486,8 @@ class SubwayTracker {
         // Highlight the selected 86th Street time
         selectedElement.classList.add('selected-departure');
         
-        // Q train travel time from 86th Street to Union Square is approximately 8-10 minutes
-        // Using 9 minutes as average travel time
-        const travelTimeMinutes = 9;
+        // Q train travel time from 86th Street to Union Square is approximately 14 minutes
+        const travelTimeMinutes = 14;
         
         const unionSquareArrivalTimestamp = departureTimestamp + (travelTimeMinutes * 60);
         const unionSquareArrivalTime = new Date(unionSquareArrivalTimestamp * 1000).toLocaleTimeString('en-US', { 
@@ -267,7 +503,39 @@ class SubwayTracker {
         this.filterUnionSquareConnections(unionSquareArrivalTimestamp);
         this.filterWhitehallConnections();
         this.filterBowlingGreenConnections();
+        this.updateBowlingGreenArrival();
         this.showPlatformNotes(unionSquareArrivalTimestamp);
+    }
+    
+    updateBowlingGreenArrival() {
+        // Find the first visible (earliest) 4/5 train in downtown Union Square after filtering
+        const visible45Trains = document.querySelectorAll('[data-station="union_square_45"] .arrival-item');
+        let earliest45Train = null;
+        
+        for (let train of visible45Trains) {
+            if (train.style.display !== 'none') {
+                earliest45Train = train;
+                break;
+            }
+        }
+        
+        if (earliest45Train) {
+            const departureTime = parseInt(earliest45Train.dataset.timestamp);
+            const departureMinutes = Math.round((departureTime - Date.now() / 1000) / 60);
+            
+            if (departureTime && departureMinutes >= 0) {
+                const travelTimeMinutes = 9;
+                const bowlingGreenArrivalTimestamp = departureTime + (travelTimeMinutes * 60);
+                const bowlingGreenArrivalTime = new Date(bowlingGreenArrivalTimestamp * 1000).toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: false 
+                });
+                const totalMinutesFromNow = departureMinutes + travelTimeMinutes;
+                
+                this.displayBowlingGreenArrival(bowlingGreenArrivalTime, totalMinutesFromNow, travelTimeMinutes);
+            }
+        }
     }
     
     displayUnionSquareArrival(arrivalTime, totalMinutes, travelTime) {
@@ -488,8 +756,12 @@ class SubwayTracker {
             return;
         }
         
-        // Filter Whitehall trains to only show those departing AFTER the earliest R/W time
-        this.filterAndShowNext5Trains('[data-station="whitehall_rw_downtown"]', earliestDepartureTime);
+        // Add 9 minutes travel time from Union Square to Whitehall
+        const travelTimeMinutes = 9;
+        const minimumWhitehallTime = earliestDepartureTime + (travelTimeMinutes * 60);
+        
+        // Filter Whitehall trains to only show those departing AFTER the earliest R/W time + 9 minutes travel time
+        this.filterAndShowNext5Trains('[data-station="whitehall_rw_downtown"]', minimumWhitehallTime);
     }
     
     filterBowlingGreenConnections() {
@@ -523,8 +795,12 @@ class SubwayTracker {
             return;
         }
         
-        // Filter Bowling Green trains to only show those departing AFTER the earliest 4/5 time
-        this.filterAndShowNext5Trains('[data-station="bowling_green_45_downtown"]', earliestDepartureTime);
+        // Add 9 minutes travel time from Union Square to Bowling Green
+        const travelTimeMinutes = 9;
+        const minimumBowlingGreenTime = earliestDepartureTime + (travelTimeMinutes * 60);
+        
+        // Filter Bowling Green trains to only show those departing AFTER the earliest 4/5 time + 9 minutes travel time
+        this.filterAndShowNext5Trains('[data-station="bowling_green_45_downtown"]', minimumBowlingGreenTime);
     }
     
     filterUptownUnionSquareConnections() {
